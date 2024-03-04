@@ -1,0 +1,67 @@
+module Commands.Legal (legalCmd) where
+
+import qualified Data.Text as T
+import Network.HTTP.Client
+import Network.HTTP.Client.TLS
+import System.Environment (getEnv)
+import Data.Maybe (fromMaybe)
+-- import qualified Data.Vector as V
+
+import OpenAI.Client
+
+
+import qualified Options.Runtime as Rto
+
+legalCmd :: Rto.RunOptions -> IO ()
+legalCmd rtOpts = do
+  putStrLn "@[run] starting."
+  manager <- newManager tlsManagerSettings
+  case rtOpts.apiKey of
+    Nothing -> error "No OPENAI api key"
+    Just aKey -> do
+      let
+        client = makeOpenAIClient aKey manager 4
+        modelID = ModelId rtOpts.model
+      loopQuery client modelID
+
+loopQuery :: OpenAIClient -> ModelId -> IO ()
+loopQuery client modelID = do
+  -- firstEngine = eId davEngine
+  putStrLn "> "
+  aPrompt <- getLine
+  case aPrompt of
+    ".quit" -> pure ()
+    _ -> do
+      doComplete client modelID (T.pack aPrompt)
+      loopQuery client modelID
+
+doComplete :: OpenAIClient -> ModelId -> T.Text -> IO ()
+doComplete client modelID prompt = do
+  let
+    complReq = defaultChatCompletionRequest modelID [ ChatMessage {
+        chmRole = "user"
+        , chmContent = Just $ "When responding to a letter received from a Hong Kong laywer, a better way to write:\n\n" <> prompt <> "\n\nin the style of a pedantic and precise British lawyer is "
+        , chmFunctionCall = Nothing
+        , chmName = Nothing
+      } ]
+  rezB <- completeChat client complReq
+  case rezB of
+    Left err -> putStrLn $ "@[run] completeText err: "  <> show err
+    Right completion ->
+      let
+        choices = chrChoices completion
+      in
+        case length choices of
+          0 -> putStrLn "@[run] no choice."
+          1 -> putStrLn $ "@[run] ... " <> showChoice (head choices)
+          n -> putStrLn $ "@[run] rez 0: " <> showChoice (head choices) <> " of " <> show n <> " choices."
+
+showChoice :: ChatChoice -> String
+showChoice choice =
+  let
+    reply = fromMaybe "NOTHING!" (chmContent $ chchMessage choice)
+    stopping = chchFinishReason choice
+  in
+  (T.unpack reply) <> " (" <> show stopping <> ")"
+
+

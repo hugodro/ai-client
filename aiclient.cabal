@@ -1,0 +1,123 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.36.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           aiclient
+version:        0.1.0.0
+synopsis:       A client for connecting to cloud-based AI systems and using their capabilities.
+description:    Please see the README on GitHub at <https://github.com/hugdro/aiclient#readme>
+category:       AI
+homepage:       https://github.com/hugdro/aiclient#readme
+bug-reports:    https://github.com/hugdro/aiclient/issues
+author:         Hugo DesRosiers  <hugo.desrosiers@boardingcities.com>
+maintainer:     Hugo DesRosiers <hugo.desrosiers@boardingcities.com>
+copyright:      BSD3
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    CHANGELOG.md
+
+source-repository head
+  type: git
+  location: https://github.com/hugdro/aiclient
+
+library
+  exposed-modules:
+      Commands
+      Commands.Complete
+      Commands.Help
+      Commands.Image
+      Commands.Speech
+      Commands.Version
+      DB.Connect
+      DB.Opers
+      MainLogic
+      Options
+      Options.Cli
+      Options.ConfFile
+      Options.Runtime
+  other-modules:
+      Paths_aiclient
+  hs-source-dirs:
+      src
+  default-extensions:
+      OverloadedStrings
+      DuplicateRecordFields
+      OverloadedRecordDot
+  ghc-options: -Wall
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , bytestring
+    , directory
+    , filepath
+    , gitrev
+    , mtl
+    , openai-client
+    , optparse-applicative
+    , text
+    , time
+    , vector
+    , yaml
+  default-language: Haskell2010
+
+executable doai
+  main-is: Main.hs
+  other-modules:
+      Paths_aiclient
+  hs-source-dirs:
+      app
+  default-extensions:
+      OverloadedStrings
+      DuplicateRecordFields
+      OverloadedRecordDot
+  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , aiclient
+    , base >=4.7 && <5
+    , bytestring
+    , directory
+    , filepath
+    , gitrev
+    , mtl
+    , openai-client
+    , optparse-applicative
+    , text
+    , time
+    , vector
+    , yaml
+  default-language: Haskell2010
+
+test-suite gclient-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_aiclient
+  hs-source-dirs:
+      test
+  default-extensions:
+      OverloadedStrings
+      DuplicateRecordFields
+      OverloadedRecordDot
+  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , aiclient
+    , base >=4.7 && <5
+    , bytestring
+    , directory
+    , filepath
+    , gitrev
+    , mtl
+    , openai-client
+    , optparse-applicative
+    , text
+    , time
+    , vector
+    , yaml
+  default-language: Haskell2010

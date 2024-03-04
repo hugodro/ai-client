@@ -1,0 +1,75 @@
+name:                aiclient
+version:             0.1.0.0
+github:              "hugdro/aiclient"
+license:             BSD3
+author:              "Hugo DesRosiers  <hugo.desrosiers@boardingcities.com>"
+maintainer:          "Hugo DesRosiers <hugo.desrosiers@boardingcities.com>"
+copyright:           BSD3
+
+extra-source-files:
+  - README.md
+  - CHANGELOG.md
+
+synopsis:            A client for connecting to cloud-based AI systems and using their capabilities.
+category:            AI
+
+description:         Please see the README on GitHub at <https://github.com/hugdro/aiclient#readme>
+
+dependencies:
+  - aeson
+  - base >= 4.7 && < 5
+  - bytestring
+  - directory
+  - text
+  - time
+  - vector
+  # For YAML (config file):
+  - yaml
+  - directory
+  - filepath
+  # For Git (version):
+  - gitrev
+  # For options:
+  - optparse-applicative
+  # For Cont(T):
+  - mtl
+  # Project:
+  - openai-client
+  #- http-conduit
+  #- http-client
+  #- http-client-tls
+
+
+default-extensions:
+  - OverloadedStrings
+  - DuplicateRecordFields
+  - OverloadedRecordDot
+
+ghc-options:
+  - -Wall
+
+library:
+  source-dirs: src
+
+executables:
+  doai:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - aiclient
+
+
+tests:
+  gclient-test:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - aiclient

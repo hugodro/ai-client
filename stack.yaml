@@ -1,0 +1,12 @@
+resolver:
+  url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/21/22.yaml
+
+packages:
+- .
+
+extra-deps:
+  - ../LocalLibs/openai-client
+  - ../LocalLibs/openai-client/openai-gen
+
+# Control whether we use the GHC we find on the path
+system-ghc: true

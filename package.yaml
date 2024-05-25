@@ -64,7 +64,7 @@ executables:
 
 
 tests:
-  gclient-test:
+  client-test:
     main: Spec.hs
     source-dirs: test
     ghc-options:

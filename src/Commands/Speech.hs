@@ -2,6 +2,7 @@
 module Commands.Speech (speechCmd) where
 
 import Data.Text (Text)
+import qualified Data.Text.IO as T (readFile)
 
 {-
 import qualified Data.ByteString as BS
@@ -21,30 +22,41 @@ import Actions.Audio (SpeechParams(..), AudioVerb(..))
 
 import qualified Options.Runtime as Rto
 
-speechCmd :: FilePath -> Text -> Rto.RunOptions -> IO ()
-speechCmd outputPath userPrompt rtOpts = do
+speechCmd :: FilePath -> Text -> Maybe Text -> Maybe FilePath -> Rto.RunOptions -> IO ()
+speechCmd outputPath narrator mbPrompt mbFile rtOpts = do
   putStrLn "@[run] starting."
   case rtOpts.apiKey of
     Nothing -> error "No OPENAI api key"
     Just aKey ->
-      if rtOpts.model == "tts-1" || rtOpts.model == "tts-1-hd" then
-        doSpeech rtOpts aKey userPrompt outputPath
+      if rtOpts.model == "tts-1" || rtOpts.model == "tts-1-hd" then do
+        userPrompt <-
+          case mbFile of
+            Nothing -> pure $ case mbPrompt of Nothing -> ""; Just aText -> aText
+            Just aPath -> do
+              fileText <- T.readFile aPath
+              case mbPrompt of
+                Nothing -> pure fileText
+                Just aText -> pure (fileText <> "\n\n" <> aText)
+        doSpeech rtOpts aKey narrator userPrompt outputPath
       else
         putStrLn $ "@[speechCmd] model " <> show rtOpts.model <> " is not supported for speech generation."
 
 
-doSpeech :: Rto.RunOptions -> Text -> Text -> FilePath -> IO ()
-doSpeech rtOpts aKey userPrompt outputPath =
-  let
-    oaiContext = Simple aKey rtOpts.model
-    action = Speech $ PromptPath userPrompt outputPath
-  in do
-  rezA <- think $ Audio action oaiContext
-  case rezA of
-    Left errMsg ->
-      putStrLn $ "@[completeCmd] err: " <> errMsg <> ".\n"
-    Right NilResult -> pure ()
-    _ -> putStrLn $ "@[doSpeech] got a response but it's not valid result.\n"
+doSpeech :: Rto.RunOptions -> Text -> Text -> Text -> FilePath -> IO ()
+doSpeech rtOpts aKey narrator userPrompt outputPath =
+  if userPrompt == "" then
+    putStrLn $ "@[doSpeech] err: empty prompt.\n"
+  else
+    let
+      oaiContext = Simple aKey rtOpts.model
+      action = Speech $ PromptPath userPrompt outputPath narrator
+    in do
+    rezA <- think $ Audio action oaiContext
+    case rezA of
+      Left errMsg ->
+        putStrLn $ "@[doSpeech] err: " <> errMsg <> ".\n"
+      Right NilResult -> pure ()
+      _ -> putStrLn $ "@[doSpeech] got a response but it's not valid result.\n"
 
 
 {-

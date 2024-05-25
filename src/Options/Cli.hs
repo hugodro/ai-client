@@ -30,7 +30,7 @@ data Command =
   | VersionCmd
   | CompleteCmd Text
   | ImageCmd Text Text
-  | SpeechCmd Text Text
+  | SpeechCmd (Maybe Text) (Maybe Text) Text Text  -- prompt, inFile, narrator + outFile
   deriving stock (Show)
 
 {- HERE: Additional structures for holding new command parameters:
@@ -138,5 +138,31 @@ imageOpts =
 
 speechOpts :: Parser Command
 speechOpts =
-  SpeechCmd <$> strArgument (metavar "PROMPT" <> help "Prompt for soeech generation.")
+  mkSpeechCmd <$> strOption (
+      long "prompt"
+      <> short 'p'
+      <> metavar "PROMPT"
+      <> value ""
+      <> help "Prompt for soeech generation."
+    )
+    <*> strOption (
+      long "infile"
+      <> short 'f'
+      <> metavar "INPUT_FILE"
+      <> value ""
+      <> help "Prompt for soeech generation."
+    )
+    <*> strOption (
+      long "narrator"
+      <> short 'n'
+      <> metavar "NARRATOR_NAME"
+      <> value "nova"
+      <> showDefault
+      <> help "Narrator (alloy, echo, fable, onyx, nova, shimmer)."
+    )
     <*> strArgument (metavar "OUTPUT" <> help "Filename for storing the resulting audio.")
+  where
+  mkSpeechCmd prompt infile narrator output =
+    SpeechCmd (if prompt == "" then Nothing else Just prompt)
+              (if infile == "" then Nothing else Just infile)
+              narrator output

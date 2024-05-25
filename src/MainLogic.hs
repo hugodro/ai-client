@@ -33,7 +33,7 @@ runWithOptions cliOptions fileOptions = do
             Opt.VersionCmd -> Cmd.versionCmd
             Opt.CompleteCmd prompt -> Cmd.completeCmd prompt
             Opt.ImageCmd aText filePath -> Cmd.imageCmd (unpack filePath) aText
-            Opt.SpeechCmd aText filePath -> Cmd.speechCmd (unpack filePath) aText
+            Opt.SpeechCmd mbText mbFile narrator filePath -> Cmd.speechCmd (unpack filePath) narrator mbText (unpack <$> mbFile)
       cmdExecutor rtOptions
       -- TODO: return a properly kind of conclusion.
       pure ()
